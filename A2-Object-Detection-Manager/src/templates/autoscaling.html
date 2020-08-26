@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="height: 100vh; padding: 30px">
+    <div style="display:flex; flex-direction:row; justify-content: space-between;">
+        <h2>AUTO SCALING</h2>
+        <form action="{{url_for('panel.index')}}" method='get'>
+            <button type="submit" class="btn btn-primary">PANEL</button>
+        </form>
+    </div>
+    <fieldset>
+        <div style="display: flex; flex-direction:column; align-items: center; padding: 80px;">
+            <h4>Current Auto Scaling Configuration</h4>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">CPU Expand Threshold</th>
+                        <th scope="col">CPU Expand Rate</th>
+                        <th scope="col">CPU Shrink Threshold</th>
+                        <th scope="col">CPU Shrink Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="table-warning">
+                        {% if autoScalingConfig %}
+                            <td>{{ autoScalingConfig.expand_threshold }}</td>
+                            <td>{{ autoScalingConfig.expand_ratio }} </td>
+                            <td>{{ autoScalingConfig.shrink_threshold }} </td>
+                            <td>{{ autoScalingConfig.shrink_ratio }} </td>
+                        {% else %}
+                            <td>--</td>
+                            <td>--</td>
+                            <td>--</td>
+                            <td>--</td>
+                        {% endif %}
+                        
+                    </tr>
+                </tbody>
+            </table>
+            <form action="{{url_for('autoscaling.apply')}}" method='post'>
+                <div class="form-group"
+                    style="display: flex; flex-direction:column; justify-content: space-evenly; padding: 60px;">
+                    CPU threshold for growing the worker pool
+                    <select class="custom-select" name="expand-threshold">
+                        <option selected="" value="0.8">80%</option>
+                        <option value="0.6">60%</option>
+                        <option value="0.5">50%</option>
+                        <option value="0.4">40%</option>
+                        <option value="0.3">30%</option>
+                    </select>
+                    Ratio by which to expand the worker pool
+                    <select class="custom-select" name="expand-ratio">
+                        <option selected="" value="2">2x</option>
+                        <option value="2.5">2.5x</option>
+                        <option value="3">3x</option>
+                    </select>
+                    CPU threshold for shrinking the worker pool
+                    <select class="custom-select" name="shrink-threshold">
+                        <option selected="" value="0.1">10%</option>
+                        <option value="0.2">20%</option>
+                        <option value="0.3">30%</option>
+                        <option value="0.4">40%</option>
+                        <option value="0.5">50%</option>
+                    </select>
+                    Ratio by which to shrink the worker pool
+                    <select class="custom-select" name="shrink-ratio">
+                        <option selected="" value="0.8">0.8x</option>
+                        <option value="0.5">0.5x</option>
+                        <option value="0.2">0.2x</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">APPLY</button>
+                </div>
+            </form>
+            <div id="message" style="padding: 5px">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-dismissible alert-{{ category }}">
+                                <button type="button" class='close' data-dismiss="alert">&times;</button>
+                                <p class="mb-0">{{ message }}</p>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </fieldset>
+</div>
+{% endblock %}

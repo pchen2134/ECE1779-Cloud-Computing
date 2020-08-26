@@ -1,0 +1,135 @@
+{% extends "base.html" %} 
+{% block content %}
+
+
+<div style="padding: 20px; display:flex; justify-content:center; flex-direction:column">
+    <h2>Worker Detail</h2>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Type</th>
+                <th scope="col">Availability Zone</th>
+                <th scope="col">Public IP Address</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tr>
+            <td>{{ instance.id }}</td>
+            <td>{{ instance.instance_type }}</td>
+            <td>{{ instance.placement['AvailabilityZone']}}</td>
+            <td>{{ instance.public_ip_address }}</td>
+            <td>{{ instance.state['Name'] }}</td>
+        </tr>
+    </table>
+    <div style="display: flex; flex-direction: column; justify-content: space-evenly">
+        <div class="card border-primary">
+            <div class="card-header">CPU UTILIZATION</div>
+            <div class="card-body" style="display:flex; justify-content:center;">
+                <canvas id="CPUchart" width="1000" height="500"></canvas>
+            </div>
+        </div>
+        <div class="card border-primary">
+            <div class="card-header">HTTP REQUEST RATE</div>
+            <div class="card-body" style="display:flex; justify-content:center;">
+                <canvas id="HTTPchart" width="1000" height="500"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // bar chart data
+    var CPUbarData = {
+        labels: [
+            {% for item in CPUlabels %}
+                "{{ item }}",
+            {% endfor %}
+        ],
+
+    datasets: [{
+        fillColor: "rgba(151,187,205,0.2)",
+        strokeColor: "rgba(151,187,205,1)",
+        pointColor: "rgba(151,187,205,1)",
+        pointStrokeColor: "#fff",
+        pointHighlightFill: "#fff",
+        pointHighlightStroke: "rgba(151,187,205,1)",
+        bezierCurve: false,
+        data: [
+            {% for item in CPUvalues %}
+              {{ item }},
+    {% endfor %}]
+          }
+	]
+      }
+
+    Chart.defaults.global.animationSteps = 50;
+    Chart.defaults.global.tooltipYPadding = 16;
+    Chart.defaults.global.tooltipCornerRadius = 0;
+    Chart.defaults.global.tooltipTitleFontStyle = "normal";
+    Chart.defaults.global.tooltipFillColor = "rgba(0,0,0,0.8)";
+    Chart.defaults.global.animationEasing = "easeOutBounce";
+    Chart.defaults.global.responsive = false;
+    Chart.defaults.global.scaleLineColor = "black";
+    Chart.defaults.global.scaleFontSize = 16;
+
+    // get bar chart canvas
+    var cpuChart = document.getElementById("CPUchart").getContext("2d");
+
+    steps = 10
+    max = {{ CPUmax }} + 0.1
+    // draw bar chart
+    var LineChartDemo = new Chart(cpuChart).Line(CPUbarData, {
+        scaleOverride: true,
+        scaleSteps: 10,
+        scaleStepWidth: max / steps,
+        scaleStartValue: 0,
+        scaleShowVerticalLines: true,
+        scaleShowGridLines: true,
+        barShowStroke: true,
+        scaleShowLabels: true,
+        bezierCurve: false,
+    });
+    
+    // bar chart data
+    var HTTPbarData = {
+            labels: [
+                {% for item in HTTPlabels %}
+                        "{{ item }}",
+                {% endfor %}
+        ],
+
+        datasets: [{
+            fillColor: "rgba(151,187,205,0.2)",
+            strokeColor: "rgba(151,187,205,1)",
+            pointColor: "rgba(151,187,205,1)",
+            pointStrokeColor: "#fff",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba(151,187,205,1)",
+            bezierCurve: false,
+            data: [
+                {% for item in HTTPvalues %}
+                    {{ item }},
+        {% endfor %}]
+          }
+	]
+      }
+
+    // get bar chart canvas
+    var httpChart = document.getElementById("HTTPchart").getContext("2d");
+
+    max = {{ HTTPmax }} + 1
+    // draw bar chart
+    var LineChartDemo = new Chart(httpChart).Line(HTTPbarData, {
+        scaleOverride: true,
+        scaleSteps: 1,
+        scaleStepWidth: max,
+        scaleStartValue: 0,
+        scaleShowVerticalLines: true,
+        scaleShowGridLines: true,
+        barShowStroke: true,
+        scaleShowLabels: true,
+        bezierCurve: false,
+    });
+</script>
+{% endblock %}

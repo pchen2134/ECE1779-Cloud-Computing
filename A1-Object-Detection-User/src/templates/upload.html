@@ -1,0 +1,42 @@
+{% extends "landing.html" %}
+
+{% block content %}
+<head>
+    <script type="text/javascript">// <![CDATA[
+        function preloader() {
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("content").style.display = "none";
+        }//preloader
+    // ]]></script>
+</head>
+    <div class="text-center">
+        <div style="height:100vh">
+                <form method="post" enctype="multipart/form-data" action="{{ url_for('upload.upload') }}" onsubmit="preloader()">
+                    <div class="form-group">
+                        <input type="file" name="myfile">
+                    </div>
+                    <!-- COMPONENT END -->
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary pull-left">Submit</button>
+                    </div>
+                </form>
+            <div>
+                {% if success %}
+                <div id="content">
+                    <img src="{{ pic1 }}" width="400" height="400" />
+                    <img src="{{ pic2 }}" width="400" height="400" />
+                </div>
+                
+                {% endif %}
+                <div id="loading" style="display:none">
+                    <h1>Dectecting...</h1>
+                </div>
+            </div>
+            {% for message in get_flashed_messages() %}
+                <div class="alert alert-danger">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

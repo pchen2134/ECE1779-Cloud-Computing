@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+<form method="POST" action="{{ url_for('users.login') }}" class="justify-content-center">
+    {{ form.csrf }}
+    <h2>Please sign in</h2>
+    <div class="form-group">
+        <label for="username">Email address</label>
+        <input type="text" name="username" id="username" class="form-control" placeholder="Username" required autofocus>
+        {% if form.username.errors %}
+        {% for error in form.username.errors %}
+        <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" class="form-control" placeholder="Password" required
+            autofocus>
+        {% if form.password.errors %}
+        <ul class="errors">
+            {% for error in form.password.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    <div class="form-group">
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-danger">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    <button class="btn btn-lg btn-primary" type="submit">Log In</button>
+</form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container h-100">
+<div class="jumbotron">
+    {% if current_user.is_authenticated %}
+        <h1 class="display-3">Welcome! {{ current_user.username }}</h1>
+    {% else %}
+        <h1 class="display-3">Welcome!</h1>
+        <p class="lead">
+            <p>ODWA - Object Detection Web Application</p>
+            <hr class="my-4">
+            <p>To start using, please sign up.</p>
+            <p class="lead">
+                <a class="btn btn-primary btn-lg" href="{{ url_for('users.signup') }}" role="button">Sign Up</a>
+        </p>
+    {% endif %}
+</div>
+</div>
+{% endblock %}

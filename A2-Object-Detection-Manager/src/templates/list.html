@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="padding:20px; display:flex; flex-direction:column; ">
+    <div style="display:flex; flex-direction:row; justify-content: space-between;" >
+            <h2>Workers</h2>
+            <h3 class="text-success">Worker Pool Size: {{worker_pool_size}} </h3>
+            <form action="{{url_for('panel.index')}}" method='get'>
+                <button type="submit" class="btn btn-primary">PANEL</button>
+            </form>
+        </div>
+    </div>
+    <div style="margin:30px">
+        <div style="padding: 10px">
+            <div class="card border-primary">
+                <div class="card-header">WORKER NUMBER IN LAST 30 MINUTES</div>
+                <div class="card-body" style="display:flex; justify-content:center;">
+                    <canvas id="workerchart" width="600" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div style="padding: 10px">
+            <div class="card border-primary">
+                <div class="card-header">WORKER AVG CPU IN LAST 30 MINUTES</div>
+                <div class="card-body" style="display:flex; justify-content:center;">
+                    <canvas id="avgcpuchart" width="600" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div style="margin:15px">
+            <div style="display:flex; flex-direction:row; justify-content: space-between;">
+                <form action="{{url_for('panel.list_workers')}}" method='get'>
+                    <button type="submit" class="btn btn-info">REFRESH</button>
+                </form>
+                <form action="{{url_for('detail.destroy_all')}}" method='post'>
+                    <button type="submit" class="btn btn-primary">DESTROY ALL</button>
+                </form>
+            </div>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">PUBLIC IP</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Availability Zone</th>
+            
+                        <th scope="col">Status</th>
+                        <th scope="col">In Service</th>
+                    </tr>
+                </thead>
+                {% for instance in instances %}
+                {% if instance['state'] != 'terminated' %}
+                {% if instance['inservice']== 'Yes' and instance['state'] == 'running' %}
+                <tr class="table-success">
+                    {% else %}
+                <tr>
+                    {% endif %}
+                    <td>{{ instance['id'] }}</td>
+                    <td>{{ instance['public_ip_address'] }}</td>
+                    <td>{{ instance['instance_type'] }}</td>
+                    <td>{{ instance['availability_zone'] }}</td>
+                    <td>{{ instance['state'] }}</td>
+                    <td>{{ instance['inservice'] }}</td>
+                    <td>
+                        {% if instance['state'] == 'pending' or instance['state']== 'shutting-down'%}
+                        <button type="submit" class="btn btn-sm btn-primary disabled">Detail</button>
+                        {% else %}
+                        <form action="{{url_for('detail.worker_view',id=instance.id)}}" method='get'>
+                            <button type="submit" class="btn btn-sm btn-info">Detail</button>
+                        </form>
+                        {% endif %}
+            
+                    </td>
+                    <td>
+                        {% if instance['state'] == 'shutting-down' %}
+                        <button type="submit" class="btn btn-sm btn-primary disabled">Destroy</button>
+                        {% else %}
+                        <form action="{{url_for('detail.destroy_worker',id=instance.id)}}" method='post'>
+                            <button type="submit" class="btn btn-sm btn-danger">Destroy</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    
+    
+
+     var WorkerData = {
+            labels: [
+                {% for item in workerLabels %}
+                    "{{ item }}",
+            {% endfor %}
+        ],
+
+        datasets: [{
+            fillColor: "rgba(151,187,205,0.2)",
+            strokeColor: "rgba(151,187,205,1)",
+            pointColor: "rgba(151,187,205,1)",
+            pointStrokeColor: "#fff",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba(151,187,205,1)",
+            bezierCurve: false,
+            data: [
+                {% for item in workerValues %}
+              {{ item }},
+        {% endfor %}]
+          }
+	]
+      }
+
+        Chart.defaults.global.animationSteps = 50;
+        Chart.defaults.global.tooltipYPadding = 16;
+        Chart.defaults.global.tooltipCornerRadius = 0;
+        Chart.defaults.global.tooltipTitleFontStyle = "normal";
+        Chart.defaults.global.tooltipFillColor = "rgba(0,0,0,0.8)";
+        Chart.defaults.global.animationEasing = "easeOutBounce";
+        Chart.defaults.global.responsive = false;
+        Chart.defaults.global.scaleLineColor = "black";
+        Chart.defaults.global.scaleFontSize = 16;
+
+        // get bar chart canvas
+        var WorkerChart = document.getElementById("workerchart").getContext("2d");
+
+        max = {{ workerMax }} + 1
+        // draw bar chart
+        var LineChartDemo = new Chart(WorkerChart).Line(WorkerData, {
+            scaleOverride: true,
+            scaleSteps: 1,
+            scaleStepWidth: max,
+            scaleStartValue: 0,
+            scaleShowVerticalLines: true,
+            scaleShowGridLines: true,
+            barShowStroke: true,
+            scaleShowLabels: true,
+            bezierCurve: false,
+        });
+
+        var cpuData = {
+            labels: [
+                    {% for item in cpuLabels %}
+                        "{{ item }}",
+                    {% endfor %}
+            ],
+
+            datasets: [{
+                fillColor: "rgba(151,187,205,0.2)",
+                strokeColor: "rgba(151,187,205,1)",
+                pointColor: "rgba(151,187,205,1)",
+                pointStrokeColor: "#fff",
+                pointHighlightFill: "#fff",
+                pointHighlightStroke: "rgba(151,187,205,1)",
+                bezierCurve: false,
+                data: [
+                    {% for item in cpuValues %}
+                        {{ item }},
+                    {% endfor %}]
+            }]
+        }
+
+        // get bar chart canvas
+        var cpuChart = document.getElementById("avgcpuchart").getContext("2d");
+
+        max = {{ cpuMax }} + 1
+        // draw bar chart
+        var LineChartDemo = new Chart(cpuChart).Line(cpuData, {
+            scaleOverride: true,
+            scaleSteps: 1,
+            scaleStepWidth: max,
+            scaleStartValue: 0,
+            scaleShowVerticalLines: true,
+            scaleShowGridLines: true,
+            barShowStroke: true,
+            scaleShowLabels: true,
+            bezierCurve: false,
+        });
+</script>
+
+{% endblock %}

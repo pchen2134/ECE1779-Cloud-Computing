@@ -1,0 +1,9 @@
+{% extends "landing.html" %}
+
+
+{% block content %}
+<div class="d-flex justify-content-around">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('upload.upload') }}" role="button">upload</a>
+        <a class="btn btn-primary btn-lg" href="{{ url_for('users.gallery') }}" role="button">View Gallery</a>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="height: 100vh; display: flex; flex-direction: column; justify-content: center">
+    <div style="display: flex; flex-direction: row; justify-content: space-evenly;"> 
+        <form action="{{url_for('panel.index')}}" method='get'>
+            <button type="submit" class="btn btn-primary">PANEL</button>
+        </form>
+        <form action="{{url_for('panel.list_workers')}}" method='get'>
+            <button type="submit" class="btn btn-primary">WORKER LIST</button>
+        </form>
+    </div>
+    <div style="display: flex; justify-content: center; padding-top: 100px;">
+        <div style="display: flex; flex-direction: column;  align-items: center; padding: 20px">
+            <h3>WORKER POOL SIZE: {{ num_workers }}</h3>
+            <p class="text-warning">(number of currently running instances serving the user-app)</p>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; padding: 20px">
+            <h3>RUNNING INSTANCES: {{ num_instances }}</h3>
+            <p class="text-warning">(number of currently running instances)</p>
+        </div>
+
+    </div>
+    <div style="display: flex; flex-direction:column; justify-content: center; height: 50%">
+        <div style="display: flex; flex-direction:row; justify-content: space-around; padding: 50px;">
+            {% if autoScaleOn %}
+                    <button type="submit" class="btn btn-lg disabled btn-primary">CREATE A WORKER</button>
+                    <div style="display:flex; flex-direction: column; align-items: center">
+                        <form action="{{url_for('manualscaling.turn_on')}}" method='post'>
+                            <button type="submit" class="btn btn-lg btn-outline-primary">TURN ON MANUAL SCALING</button>
+                        </form>
+                        <p class="text-warning">By applying manual scaling, auto scaling will be turned off</p>
+                    </div>
+                    <button type="submit" class="btn btn-lg disabled btn-primary">DESTROY A WORKER</button>
+            {% else %}
+                <form action="{{url_for('manualscaling.create_worker')}}" method='post'>
+                    <button type="submit" class="btn btn-lg  btn-success">CREATE A WORKER</button>
+                </form>
+                <form action="{{url_for('manualscaling.destroy_worker')}}" method='post'>
+                    <button type="submit" class="btn btn-lg  btn-danger">DESTROY A WORKER</button>
+                </form>
+            {% endif %}
+        </div>
+
+        <div id="message" style="padding: 100px">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-dismissible alert-{{ category }}">
+                        <button type="button" class='close' data-dismiss="alert">&times;</button>
+                        <p class="mb-0">{{ message }}</p>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+</div>
+{% endblock %}

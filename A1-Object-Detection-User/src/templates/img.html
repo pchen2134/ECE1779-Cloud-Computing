@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="text-align: center;">
+    <h2> Original Image </h2>
+    <div style="text-align: center;">
+        <img src="{{ picnames[0] }}" />
+    </div>
+    <h2> Detected Image </h2>
+    <div style="text-align: center;">
+        <img src="{{ picnames[1] }}" />
+    </div>
+</div>
+   
+{% endblock %}

@@ -1,0 +1,39 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="{{ url_for('landing.landing') }}">ODWA</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor03"
+        aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="collapse navbar-collapse" id="navbarColor03">
+
+            <div class="navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('users.gallery') }}" role="button">Gallery</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('upload.upload') }}" role="button">upload</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('users.logout') }}">Log Out</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('users.login') }}">Log In</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('users.signup') }}">Sign Up</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>

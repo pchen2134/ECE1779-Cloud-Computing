@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="height: 100%; padding: 50px">
+    <div style="display: flex; flex-direction: row; justify-content: space-between">
+        <h3>Manager Portal</h3>
+        <div style="display:flex; flex-direction:row; justify-content: space-between;">
+            {% if num_serving_instance != 0 %}
+                <form action="http://odwa-lb-1384744205.us-east-1.elb.amazonaws.com">
+                    <button type="submit" class="btn btn-lg btn-info">GO TO APPLICATION</button>
+                </form>
+            {% else %}
+                <button type="submit" class="btn disabled btn-lg btn-primary">GO TO APPLICATION</button>
+            {% endif %}
+            <form action="{{url_for('panel.stop_manager')}}" method='post'>
+                <button type="submit" class="btn btn-lg btn-danger">STOP MANAGER</button>
+            </form>
+        </div>
+        
+    </div>
+    {% if num_serving_instance != 0 %}
+    <h5>USER-APP Status: RUNNING</h5>
+    {% else %}
+    <h5>USER-APP Status: STOPPED</h5>
+    {% endif %}
+    <div class="progress" style="max-width: 25%">
+        {% if num_serving_instance != 0 %}
+        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar"
+            aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+        {% else %}
+        <div class="progress-bar bg-danger progress-bar-striped progress-bar" role="progressbar" aria-valuenow="100"
+            aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+        {% endif %}
+    </div>
+    <div style="margin-top: 15px">
+        <h5>Average CPU UTILIZATION OF WORKERS (last 2 minutes): {{ avg_cpu_util }}</h5>
+    </div>
+    <div style="display: flex; flex-direction:column; justify-content: center; padding: 50px">
+        <div class="jumbotron">
+            <div style="display: flex; flex-direction:row; justify-content: space-evenly; padding: 30px;">
+                <form action="{{url_for('panel.goto_manualscaling')}}" method='get'>
+                    <button type="submit" class="btn btn-lg btn-primary">MANUAL SCALING</button>
+                </form>
+                <form action="{{url_for('panel.goto_autoscaling')}}" method='get'>
+                    <button type="submit" class="btn btn-lg btn-primary">AUTO SCALING</button>
+                </form>
+            </div>
+            <div style="display: flex; flex-direction:row; justify-content: space-evenly; padding: 30px;">
+                <form action="{{url_for('panel.list_workers')}}" method='get'>
+                    <button type="submit" class="btn btn-lg btn-primary">WORKERS LIST</button>
+                </form>
+                <form action="{{url_for('panel.delete_data')}}" method='post'>
+                    <button type="submit" class="btn btn-lg btn-primary">DELETE ALL DATA</button>
+                </form>
+            </div>
+            <div id="message">
+                {% for message in get_flashed_messages() %}
+                <div class="alert alert-dismissible alert-success">
+                    <button type="button" class='close' data-dismiss="alert">&times;</button>
+                    <p class="mb-0">{{ message }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <p>Load Balancer DNS: odwa-lb-1384744205.us-east-1.elb.amazonaws.com</p>
+        
+    </div>
+    
+</div>
+{% endblock %}
